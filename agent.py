@@ -79,8 +79,11 @@ try:
         """Build LangChain agent granting ALL tools — no RBAC (REPOSCAN-011)."""
         llm = ChatOpenAI(model="gpt-4", api_key=OPENAI_API_KEY)
         tools = get_tools_for_user("any_user")  # VULNERABILITY: all tools, no filter
-        agent = create_react_agent(llm, tools, SYSTEM_PROMPT)
-        agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+        agent_executor = AgentExecutor(
+            agent=create_react_agent(llm, tools, SYSTEM_PROMPT),
+            tools=tools,
+            verbose=True,
+        )
         return agent_executor
 
 except ImportError:
