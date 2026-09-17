@@ -4,6 +4,7 @@
 #          DO NOT deploy — this file is intentionally insecure for testing only.
 # Author: Thamizhmani
 # Date: 2026-09-16
+# Modified: 2026-09-17 — Add LangChain AgentExecutor wrapper for scanner detection.
 
 import os
 import openai
@@ -66,3 +67,21 @@ TOOL_DEFINITIONS = [
 def get_tools_for_user(_user_id: str) -> list:
     """Returns ALL tools regardless of user role — no RBAC applied."""
     return TOOL_DEFINITIONS
+
+
+# ── LangChain agent wrapper — detected by aisec repo scanner ─────────────────
+# langchain + langchain-openai are optional deps; install separately if running.
+try:
+    from langchain.agents import AgentExecutor, create_react_agent
+    from langchain_openai import ChatOpenAI
+
+    def build_langchain_agent():
+        """Build LangChain agent granting ALL tools — no RBAC (REPOSCAN-011)."""
+        llm = ChatOpenAI(model="gpt-4", api_key=OPENAI_API_KEY)
+        tools = get_tools_for_user("any_user")  # VULNERABILITY: all tools, no filter
+        agent = create_react_agent(llm, tools, SYSTEM_PROMPT)
+        agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+        return agent_executor
+
+except ImportError:
+    pass
