@@ -4,7 +4,7 @@
 #          DO NOT deploy — this file is intentionally insecure for testing only.
 # Author: Thamizhmani
 # Date: 2026-09-16
-# Modified: 2026-09-17 — Add LangChain AgentExecutor wrapper for scanner detection.
+# Modified: 2026-09-17 — Add LangChain AgentExecutor wrapper; rename TOOL_DEFINITIONS→AGENT_TOOLS for scanner binding.
 
 import os
 import openai
@@ -53,7 +53,7 @@ def get_claude_response(user_input: str) -> str:
 
 
 # ── VULNERABILITY: Excessive tool permissions — all tools granted to all users ─
-TOOL_DEFINITIONS = [
+AGENT_TOOLS = [
     {"name": "read_file", "description": "Read any file on the server"},
     {"name": "execute_query", "description": "Execute any database query"},
     {"name": "send_email", "description": "Send email to any address"},
@@ -66,7 +66,7 @@ TOOL_DEFINITIONS = [
 
 def get_tools_for_user(_user_id: str) -> list:
     """Returns ALL tools regardless of user role — no RBAC applied."""
-    return TOOL_DEFINITIONS
+    return AGENT_TOOLS
 
 
 # ── LangChain agent wrapper — detected by aisec repo scanner ─────────────────
